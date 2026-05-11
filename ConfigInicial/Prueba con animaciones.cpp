@@ -255,7 +255,7 @@ int main()
 
 	//Inmuebles
 	Model Mesa((char*)"Models/mesa/exteriorTable.obj");
-	Model Silla((char*)"Models/silla/Chair_iso.obj");
+	Model Silla((char*)"Models/silla/silla.obj");
 
 	//Pendulo
 	Model Soporte((char*)"Models/pendulo/pendulo_base.obj"); // La estructura fija (se dibuja 1 vez)

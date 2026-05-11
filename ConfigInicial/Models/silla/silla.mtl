@@ -1,0 +1,26 @@
+# Blender 5.0.1 MTL File: 'silla.blend'
+# www.blender.org
+
+newmtl FabricPlastic
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd Chair_iso_FabricPlastic_BaseColor.png
+map_refl Chair_iso_FabricPlastic_Roughness.png
+map_Bump -bm 1.000000 Chair_iso_FabricPlastic_Normal.png
+
+newmtl Metal
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd Chair_iso_Metal_BaseColor.png
+map_Ns Chair_iso_Metal_Roughness.png
+map_refl Chair_iso_Metal_Metallic.png
+map_Bump -bm 1.000000 Chair_iso_Metal_Normal.png
