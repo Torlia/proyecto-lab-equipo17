@@ -122,6 +122,128 @@ float rotEsfera4Inc = 0;
 float rotEsfera5 = 0;
 float rotEsfera5Inc = 0;
 
+// --- Variables de la animación de los estudiantes ---
+bool animarEstudiantes = false;
+
+float womanTrayectoria = 0.0f;
+int womanSegment = 0;
+float womanSpeed = 0.14f;
+
+float manTrayectoria = 1.0f;
+int manSegment = 2;
+float manSpeed = 0.2f;
+//#define MAN_OFFSET 5.0f // Para que el hombre no empiece en el mismo eje que la mujer
+
+glm::vec3 womanPos(0.0f, 0.0f, 0.0f);
+float womanRot = 0.0f;
+glm::vec3 manPos(0.0f);
+float manRot = 0.0f;
+
+float RightLeg = 0.0f;
+float LeftLeg = 0.0f;
+float RightArm = 0.0f;
+float LeftArm = 0.0f;
+bool  step = false;
+float manRightLeg = 0.0f;
+float manLeftLeg = 0.0f;
+float manRightArm = 0.0f;
+float manLeftArm = 0.0f;
+bool  manStep = false;
+
+// --- CURVAS DE BEZIER ---
+struct BezierSegment {
+	glm::vec3 P0, P1, P2, P3;
+};
+
+glm::vec3 CubicBezier(const BezierSegment& s, float t) {
+	float u = 1.0f - t;
+	return u*u*u*s.P0 + 3*u*u*t*s.P1 + 3*u*t*t*s.P2 + t*t*t* s.P3;
+}
+
+glm::vec3 CubicBezierTangent(const BezierSegment& s, float t) {
+	float u = 1.0f - t;
+	return 3.0f*(u*u*(s.P1-s.P0) + 2*u*t*(s.P2-s.P1) + t*t*(s.P3-s.P2));
+}
+
+// Definicion de la trayectoria
+#define NUM_SEGMENTS 5
+
+BezierSegment trayectoria[NUM_SEGMENTS] = {
+	// Segmento 0: Entrada -> Tren
+	{
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(22.0f, 0.0f, 0.0f),
+		glm::vec3(44.0f, 0.0f, 0.0f),
+		glm::vec3(65.0f, 0.0f, 0.0f)
+	},
+	// Segmento 1: Tren -> Pasillo
+	{
+		glm::vec3(65.0f, 0.0f, 0.0f),
+		glm::vec3(67.0f, 0.0f, 10.0f),
+		glm::vec3(69.0f, 0.0f, 20.0f),
+		glm::vec3(69.0f, 0.0f, 30.0f)
+	},
+	// Segmento 2: Pasillo -> Stands
+	{
+		glm::vec3(69.0f, 0.0f, 30.0f),
+		glm::vec3(43.0f, 0.0f, 32.0f),
+		glm::vec3(22.0f, 0.0f, 34.0f),
+		glm::vec3(3.0f, 0.0f, 34.0f)
+	},
+	// Segmento 3: Stands -> Auditorio
+	{
+		glm::vec3(3.0f, 0.0f, 34.0f),
+		glm::vec3(5.0f, 0.0f, -15.0f),
+		glm::vec3(7.0f, 0.0f, -45.0f),
+		glm::vec3(7.0f, 0.0f, -85.0f)
+	},
+	// Segmento 4: Regreso al inicio
+   {
+	   glm::vec3(7.0f, 0.0f, -85.0f),
+	   glm::vec3(4.0f, 0.0f, -40.0f),
+	   glm::vec3(2.0f, 0.0f, -20.0f),
+	   glm::vec3(0.0f, 0.0f,   0.0f)
+   },
+};
+
+BezierSegment trayectoriaHombre[NUM_SEGMENTS] = {
+	// Segmento 0: Pasillo -> Centro
+	{
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, -10.0f),
+		glm::vec3(0.0f, 0.0f, -25.0f),
+		glm::vec3(0.0f, 0.0f, -43.0f)
+	},
+	// Segmento 1: Centro -> Entrada
+	{
+		glm::vec3(0.0f, 0.0f, -43.0f),
+		glm::vec3(-15.0f, 0.0f, -41.0f),
+		glm::vec3(-35.0f, 0.0f, -39.0f),
+		glm::vec3(-55.0f, 0.0f, -39.0f)
+	},
+	// Segmento 2: Entrada -> Stands
+	{
+		glm::vec3(-55.0f, 0.0f, -39.0f),
+		glm::vec3(-53.0f, 0.0f, -35.0f),
+		glm::vec3(-51.0f, 0.0f, -31.0f),
+		glm::vec3(-51.0f, 0.0f, -29.0f)
+	},
+	// Segmento 3: Stands -> Pasillo
+   {
+	   glm::vec3(-51.0f, 0.0f, -29.0f),
+	   glm::vec3(-15.0f, 0.0f, -27.0f),
+	   glm::vec3(-35.0f, 0.0f, -25.0f),
+	   glm::vec3(0.0f, 0.0f, -25.0f)
+   },
+	// Segmento 4: Regreso al inicio
+   {
+	   glm::vec3(0.0f, 0.0f, -25.0f),
+	   glm::vec3(2.0f, 0.0f, -15.0f),
+	   glm::vec3(4.0f, 0.0f, -5.0f),
+	   glm::vec3(4.0f, 0.0f, 0.0f)
+   }
+};
+
 
 //KeyFrames
 
@@ -196,7 +318,7 @@ GLfloat lastFrame = 0.0f;  	// Time of last frame
 int main()
 {
 	//Mi nombre
-	std::cout << "Marin Alva Yulen Caleb Alher" << std::endl;
+	std::cout << "Equipo 17" << std::endl;
 
 	// Init GLFW
 	glfwInit();
@@ -208,7 +330,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);*/
 
 	// Create a GLFWwindow object that we can use for GLFW's functions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Animacion maquina de estados", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Pasillo Examenes Profesionales - Equipo 17", nullptr, nullptr);
 
 	if (nullptr == window)
 	{
@@ -260,6 +382,20 @@ int main()
 	//Pendulo
 	Model Soporte((char*)"Models/pendulo/pendulo_base.obj"); // La estructura fija (se dibuja 1 vez)
 	Model Esfera((char*)"Models/pendulo/pendulo_ball.obj");  // La bola (se dibuja 5 veces)
+
+	//Personas
+	Model BodyWoman((char*)"Models/mujer/woman_torso.obj");
+	Model HeadWoman((char*)"Models/mujer/woman_head.obj");
+	Model W_RightLeg((char*)"Models/mujer/woman_right_leg.obj");
+	Model W_LeftLeg((char*)"Models/mujer/woman_left_leg.obj");
+	Model W_RightArm((char*)"Models/mujer/woman_right_arm.obj");
+	Model W_LeftArm((char*)"Models/mujer/woman_left_arm.obj");
+	Model BodyMan((char*)"Models/hombre/man_torso.obj");
+	Model HeadMan((char*)"Models/hombre/man_head.obj");
+	Model M_RightLeg((char*)"Models/hombre/man_right_foot.obj");
+	Model M_LeftLeg((char*)"Models/hombre/man_left_foot.obj");
+	Model M_RightArm((char*)"Models/hombre/man_right_hand.obj");
+	Model M_LeftArm((char*)"Models/hombre/man_left_hand.obj");
 
 
 
@@ -415,12 +551,12 @@ int main()
 		glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 0);
 
 		// --- RENDERIZADO DE LA FACULTAD ---
-	// 1. Reiniciamos la matriz de modelo para que parta del origen del mundo
+		// 1. Reiniciamos la matriz de modelo para que parta del origen del mundo
 		model = glm::mat4(1);
 
 		// 2. Posicionamiento: Ajusta el valor de Y (segundo parámetro) para que el 
 		// piso de la escuela coincida con el nivel de tu cámara o del suelo.
-		model = glm::translate(model, glm::vec3(0.0f, -10.0f,0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -10.0f, 0.0f));
 
 		// 3. Escalado base: Los modelos arquitectónicos suelen venir en escalas muy 
 		// distintas. Si no ves nada o se ve gigante, ajusta este valor (ej. 0.1f o 0.01f).
@@ -436,53 +572,56 @@ int main()
 
 		// --- MESA CENTRAL (Siempre visible en su tamaño original) ---
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.3f)); // Posición central
+		model = glm::translate(model, glm::vec3(-25.0f, -9.5f, 80.0f)); // Posición central
+		model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
 
 		// Mesa Izquierda
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 3.3f)); // Desplazada a la izquierda
-		model = glm::scale(model, glm::vec3(escalaNuevas));          // <-- APLICAMOS LA MAGIA DE LA ESCALA
+		model = glm::translate(model, glm::vec3(-40.0f, -9.5f, 80.0f)); // Desplazada a la izquierda
+		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));          // <-- APLICAMOS LA MAGIA DE LA ESCALA
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Mesa.Draw(lightingShader);
+
+		// Mesa Derecha
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(-10.0f, -9.5f, 80.0f)); // Desplazada a la derecha
+		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));         // <-- ESCALA
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
 
 		// Silla Izquierda
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(1.2f, 0.0f, -1.0f)); // Cerca de la mesa izquierda
-		model = glm::scale(model, glm::vec3(escalaNuevas * 0.02f));          // Crecen juntas
+		model = glm::translate(model, glm::vec3(-15.0f, -9.5f, 45.0f)); // Cerca de la mesa izquierda
+		model = glm::scale(model, glm::vec3(escalaNuevas * 0.6f));          // Crecen juntas
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Silla.Draw(lightingShader);
 
 		// Silla Centro
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(3.2f, 0.0f, -1.0f)); // Cerca de la mesa izquierda
-		model = glm::scale(model, glm::vec3(escalaNuevas * 0.02f));          // Crecen juntas
+		model = glm::translate(model, glm::vec3(0.0f, -9.5f, 45.0f)); // Cerca de la mesa izquierda
+		model = glm::scale(model, glm::vec3(escalaNuevas * 0.6f));          // Crecen juntas
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Silla.Draw(lightingShader);
 
-		// Mesa Derecha
-		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 3.3f)); // Desplazada a la derecha
-		model = glm::scale(model, glm::vec3(escalaNuevas));         // <-- ESCALA
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		Mesa.Draw(lightingShader);
 
 		// Silla Derecha
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(5.2f, 0.0f, -1.0f)); // Cerca de la mesa derecha
-		model = glm::scale(model, glm::vec3(escalaNuevas * 0.02f));         // Crecen juntas
+		model = glm::translate(model, glm::vec3(15.0f, -9.5f, 45.0f)); // Cerca de la mesa derecha
+		model = glm::scale(model, glm::vec3(escalaNuevas * 0.6f));         // Crecen juntas
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Silla.Draw(lightingShader);
 
 		// --- DIBUJO DEL PÉNDULO DE NEWTON ---
 
-// 1. Dibujar el Soporte (Estructura fija)
+		// 1. Dibujar el Soporte (Estructura fija)
 
-//Posicionando en el centro de la escena
+		//Posicionando en el centro de la escena
 
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // Posición general aquí
+		model = glm::translate(model, glm::vec3(3.0f, -4.0f, 50.0f)); // Posición general aquí
+		model = glm::scale(model, glm::vec3(escalaNuevas * 2.5f));
 		modelTemp = model; // Guardar la base del soporte para las esferas
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
@@ -533,6 +672,102 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Esfera.Draw(lightingShader);
 
+		// --- DIBUJO DE MUJER ESTUDIANTE ---
+		// Cuerpo
+		glm::mat4 womanBase = glm::mat4(1.0f);
+		womanBase = glm::translate(womanBase, womanPos + glm::vec3(-30.5f, -9.0f, 6.0f)); // posícion inicial en la entrada
+		womanBase = glm::rotate(womanBase, glm::radians(womanRot + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // gira a su izquierda, para ver al frente
+		womanBase = glm::scale(womanBase, glm::vec3(8.0f, 8.0f, 8.0f));
+		modelTemp = model = womanBase;
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		BodyWoman.Draw(lightingShader);
+
+		// Cabeza
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		HeadWoman.Draw(lightingShader);
+
+		// Brazo derecho
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(0.05f, 0.8f, 0.0f));
+		model = glm::rotate(model, glm::radians(RightArm), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		W_RightArm.Draw(lightingShader);
+
+		// Brazo izquierdo
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(-0.05f, 0.8f, 0.0f));
+		model = glm::rotate(model, glm::radians(LeftArm), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		W_LeftArm.Draw(lightingShader);
+
+		// Pierna derecha
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(0.15f, 0.8f, 0.0f));
+		model = glm::rotate(model, glm::radians(RightLeg), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		W_RightLeg.Draw(lightingShader);
+
+		// Pierna izquierda
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(-0.15f, 0.8f, 0.0f));
+		model = glm::rotate(model, glm::radians(LeftLeg), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		W_LeftLeg.Draw(lightingShader);
+
+		// --- DIBUJO DE HOMBRE ESTUDIANTE ---
+		// Cuerpo
+		glm::mat4 manBase = glm::mat4(1.0f);
+		manBase = glm::translate(manBase, manPos + glm::vec3(40.0f, -9.0f, 59.0f)); // posícion inicial en el pasillo
+		manBase = glm::rotate(manBase, glm::radians(manRot - 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // gira a su izquierda, para ver al frente
+		manBase = glm::scale(manBase, glm::vec3(7.0f, 7.0f, 7.0f));
+		modelTemp = model = manBase;
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		BodyMan.Draw(lightingShader);
+
+		// Cabeza
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		HeadMan.Draw(lightingShader);
+
+		// Brazo derecho
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(0.05f, 0.8f, 0.0f));
+		model = glm::rotate(model, glm::radians(manRightArm), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		M_RightArm.Draw(lightingShader);
+
+		// Brazo izquierdo
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(-0.05f, 0.8f, 0.0f));
+		model = glm::rotate(model, glm::radians(manLeftArm), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		M_LeftArm.Draw(lightingShader);
+
+		// Pierna derecha
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(0.25f, 0.8f, 0.0f));
+		model = glm::rotate(model, glm::radians(manRightLeg), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		M_RightLeg.Draw(lightingShader);
+
+		// Pierna izquierda
+		model = modelTemp;
+		model = glm::translate(model, glm::vec3(-0.25f, 0.8f, 0.0f));
+		model = glm::rotate(model, glm::radians(manLeftLeg), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		M_LeftLeg.Draw(lightingShader);
+
 
 		// Also draw the lamp object, again binding the appropriate shader
 		lampShader.Use();
@@ -573,7 +808,7 @@ int main()
 	return 0;
 }
 
-// Moves/alters the camera positions based on user input Marín Alva Yulen Caleb Alher
+// Moves/alters the camera positions based on user input
 void DoMovement()
 {
 	// Camera controls
@@ -644,10 +879,21 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 				play = false;
 			}
 		}
-	}
+
+		// 4. Activar animacion de personas
+		if (key == GLFW_KEY_N) {
+			animarEstudiantes = !animarEstudiantes;
+			if (animarEstudiantes) {
+				womanTrayectoria = 0.0f;
+				womanSegment = 0.0f;
+				manTrayectoria = 0.0f;
+				manSegment = 0.0f;
+			}
+		}
+	} 
 }
 
-//Marín Alva Yulen Caleb Alher
+
 void Animation() {
 	if (play)
 	{
@@ -699,7 +945,78 @@ void Animation() {
 		}
 	}
 
-} // Marín Alva Yulen Caleb Alher
+	if (animarEstudiantes) {
+		womanTrayectoria += womanSpeed * deltaTime;
+		if (womanTrayectoria >= 1.0f) {
+			womanTrayectoria -= 1.0f;
+			womanSegment++;
+			if (womanSegment >= NUM_SEGMENTS) {
+				womanSegment = 0;
+			}
+		}
+		womanPos = CubicBezier(trayectoria[womanSegment], womanTrayectoria);
+		glm::vec3 tangent = CubicBezierTangent(trayectoria[womanSegment], womanTrayectoria);
+		if (glm::length(tangent) > 0.001f) {
+			tangent = glm::normalize(tangent);
+			womanRot = glm::degrees(atan2(tangent.x, tangent.z))-90.0f;
+		}
+		// Animación de piernas/brazos al caminar (maquina de estados)
+		if (!step) {
+			RightLeg += 0.2f;
+			LeftLeg -= 0.2f;
+			RightArm -= 0.2f;
+			LeftArm += 0.2f;
+			if (RightLeg > 5.0f) { //angulo maximo, regresa atras
+				step = true;
+			}
+		}
+		else {
+			RightLeg -= 0.2f;
+			LeftLeg += 0.2f;
+			RightArm += 0.2f;
+			LeftArm -= 0.2f;
+			if (RightLeg < -5.0f) { //angulo maximo, regresa en frente
+				step = false;
+			}
+		}
+
+		// Repitiendo para el hombre
+		manTrayectoria += manSpeed * deltaTime;
+		if (manTrayectoria >= 1.0f) {
+			manTrayectoria -= 1.0f;
+			manSegment++;
+			if (manSegment >= NUM_SEGMENTS) {
+				manSegment = 0;
+			}
+		}
+		manPos = CubicBezier(trayectoriaHombre[manSegment], manTrayectoria);
+		glm::vec3 manTangent = CubicBezierTangent(trayectoriaHombre[manSegment], manTrayectoria);
+		if (glm::length(manTangent) > 0.001f) {
+			manTangent = glm::normalize(manTangent);
+			manRot = glm::degrees(atan2(manTangent.x, manTangent.z)) - 180.0f;
+		}
+		// Animación de piernas/brazos al caminar (maquina de estados)
+		if (!manStep) {
+			manRightLeg += 0.2f;
+			manLeftLeg -= 0.2f;
+			manRightArm -= 0.2f;
+			manLeftArm += 0.2f;
+			if (manRightLeg > 5.0f) {
+				manStep = true;
+			}
+		}
+		else {
+			manRightLeg -= 0.2f;
+			manLeftLeg += 0.2f;
+			manRightArm += 0.2f;
+			manLeftArm -= 0.2f;
+			if (manRightLeg < -5.0f) {
+				manStep = false;
+			}
+		}
+	}
+
+}
 
 
 void MouseCallback(GLFWwindow* window, double xPos, double yPos)
