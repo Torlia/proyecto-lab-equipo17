@@ -577,26 +577,27 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
 
-		// Mesa Izquierda
-		// Mesa Izquierda
+		// Mesa Izquierdq
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 3.3f)); // Desplazada a la izquierda
-		model = glm::scale(model, glm::vec3(escalaNuevas));          // <-- APLICAMOS LA MAGIA DE LA ESCALA
+		model = glm::translate(model, glm::vec3(-40.0f, -9.5f, 80.0f)); // Desplazada a la izquierda
+		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));          // <-- APLICAMOS LA MAGIA DE LA ESCALA
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
+		//Mampara 1
 		float factorMampara = 0.75f;
-		model = glm::translate(model, glm::vec3(4.0f, 0.0f, -4.6f));
+		model = glm::translate(model, glm::vec3(14.0f, -9.5f, 82.0f));
 		model = glm::scale(model, glm::vec3(factorMampara));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mampara.Draw(lightingShader);
 
 		// Mesa Derecha
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-10.0f, -9.5f, 80.0f)); // Desplazada a la derecha
+		model = glm::translate(model, glm::vec3(-10.0f, -9.5f, 82.0f)); // Desplazada a la derecha
 		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));         // <-- ESCALA
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
-		model = glm::translate(model, glm::vec3(4.0f, 0.0f, -4.6f));
+		//Mampara 2
+		model = glm::translate(model, glm::vec3(14.0f, -9.5.0f, -4.6f));
 		model = glm::scale(model, glm::vec3(factorMampara));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mampara.Draw(lightingShader);
