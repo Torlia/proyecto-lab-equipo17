@@ -132,7 +132,6 @@ float womanSpeed = 0.14f;
 float manTrayectoria = 1.0f;
 int manSegment = 2;
 float manSpeed = 0.2f;
-//#define MAN_OFFSET 5.0f // Para que el hombre no empiece en el mismo eje que la mujer
 
 glm::vec3 womanPos(0.0f, 0.0f, 0.0f);
 float womanRot = 0.0f;
