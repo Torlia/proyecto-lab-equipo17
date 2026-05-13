@@ -106,9 +106,9 @@ float vertices[] = {
 glm::vec3 Light1 = glm::vec3(0);
 //Anim
 
-// --- Variables de AnimaciÛn de Mesas ---
+// --- Variables de Animaci√≥n de Mesas ---
 bool animarMesas = false;
-// Empezamos con una escala casi de cero (usar 0 exacto a veces rompe la iluminaciÛn)
+// Empezamos con una escala casi de cero (usar 0 exacto a veces rompe la iluminaci√≥n)
 float escalaNuevas = 0.001f;
 
 float rotEsfera1 = 0;
@@ -122,7 +122,7 @@ float rotEsfera4Inc = 0;
 float rotEsfera5 = 0;
 float rotEsfera5Inc = 0;
 
-// --- Variables de la animaciÛn de los estudiantes ---
+// --- Variables de la animaci√≥n de los estudiantes ---
 bool animarEstudiantes = false;
 
 float womanTrayectoria = 0.0f;
@@ -377,6 +377,7 @@ int main()
 	//Inmuebles
 	Model Mesa((char*)"Models/mesa/exteriorTable.obj");
 	Model Silla((char*)"Models/silla/silla.obj");
+	Model Mampara((char*)"Models/mampara/Mampara.obj");
 
 	//Pendulo
 	Model Soporte((char*)"Models/pendulo/pendulo_base.obj"); // La estructura fija (se dibuja 1 vez)
@@ -408,7 +409,7 @@ int main()
 		KeyFrame[i].rotEsfera4 = 0;
 		KeyFrame[i].rotEsfera5 = 0;
 
-		// Incrementos para la interpolaciÛn (deben iniciar en 0)
+		// Incrementos para la interpolaci√≥n (deben iniciar en 0)
 		KeyFrame[i].rotEsfera1Inc = 0;
 		KeyFrame[i].rotEsfera2Inc = 0;
 		KeyFrame[i].rotEsfera3Inc = 0;
@@ -416,7 +417,7 @@ int main()
 		KeyFrame[i].rotEsfera5Inc = 0;
 	}
 
-	//Cargar una animaciÛn
+	//Cargar una animaci√≥n
 	cargarPasos();
 
 	// First, set the container's VAO (and VBO)
@@ -553,15 +554,15 @@ int main()
 		// 1. Reiniciamos la matriz de modelo para que parta del origen del mundo
 		model = glm::mat4(1);
 
-		// 2. Posicionamiento: Ajusta el valor de Y (segundo par·metro) para que el 
-		// piso de la escuela coincida con el nivel de tu c·mara o del suelo.
+		// 2. Posicionamiento: Ajusta el valor de Y (segundo par√°metro) para que el 
+		// piso de la escuela coincida con el nivel de tu c√°mara o del suelo.
 		model = glm::translate(model, glm::vec3(0.0f, -10.0f, 0.0f));
 
-		// 3. Escalado base: Los modelos arquitectÛnicos suelen venir en escalas muy 
+		// 3. Escalado base: Los modelos arquitect√≥nicos suelen venir en escalas muy 
 		// distintas. Si no ves nada o se ve gigante, ajusta este valor (ej. 0.1f o 0.01f).
 		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 
-		// 4. EnvÌo de la matriz resultante al shader
+		// 4. Env√≠o de la matriz resultante al shader
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 		// 5. Llamada de dibujo
@@ -569,19 +570,25 @@ int main()
 
 		// --- MESAS Y SILLAS SECUNDARIAS (Las que crecen) ---
 
-		// --- MESA CENTRAL (Siempre visible en su tamaÒo original) ---
+		// --- MESA CENTRAL (Siempre visible en su tama√±o original) ---
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-25.0f, -9.5f, 80.0f)); // PosiciÛn central
+		model = glm::translate(model, glm::vec3(-25.0f, -9.5f, 80.0f)); // Posici√≥n central
 		model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
 
 		// Mesa Izquierda
+		// Mesa Izquierda
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-40.0f, -9.5f, 80.0f)); // Desplazada a la izquierda
-		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));          // <-- APLICAMOS LA MAGIA DE LA ESCALA
+		model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 3.3f)); // Desplazada a la izquierda
+		model = glm::scale(model, glm::vec3(escalaNuevas));          // <-- APLICAMOS LA MAGIA DE LA ESCALA
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
+		float factorMampara = 0.75f;
+		model = glm::translate(model, glm::vec3(4.0f, 0.0f, -4.6f));
+		model = glm::scale(model, glm::vec3(factorMampara));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Mampara.Draw(lightingShader);
 
 		// Mesa Derecha
 		model = glm::mat4(1);
@@ -589,6 +596,10 @@ int main()
 		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));         // <-- ESCALA
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
+		model = glm::translate(model, glm::vec3(4.0f, 0.0f, -4.6f));
+		model = glm::scale(model, glm::vec3(factorMampara));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Mampara.Draw(lightingShader);
 
 		// Silla Izquierda
 		model = glm::mat4(1);
@@ -612,14 +623,14 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Silla.Draw(lightingShader);
 
-		// --- DIBUJO DEL P…NDULO DE NEWTON ---
+		// --- DIBUJO DEL P√âNDULO DE NEWTON ---
 
 		// 1. Dibujar el Soporte (Estructura fija)
 
 		//Posicionando en el centro de la escena
 
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(3.0f, -4.0f, 50.0f)); // PosiciÛn general aquÌ
+		model = glm::translate(model, glm::vec3(3.0f, -4.0f, 50.0f)); // Posici√≥n general aqu√≠
 		model = glm::scale(model, glm::vec3(escalaNuevas * 2.5f));
 		modelTemp = model; // Guardar la base del soporte para las esferas
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -628,7 +639,7 @@ int main()
 
 		// Altura del hilo (distancia desde el soporte al centro de la esfer
 		float largoHilo = 0.5f;
-		// SeparaciÛn entre esferas
+		// Separaci√≥n entre esferas
 		float separacion = 0.15f;
 
 		// --- ESFERA 1 (Izquierda) ---
@@ -674,7 +685,7 @@ int main()
 		// --- DIBUJO DE MUJER ESTUDIANTE ---
 		// Cuerpo
 		glm::mat4 womanBase = glm::mat4(1.0f);
-		womanBase = glm::translate(womanBase, womanPos + glm::vec3(-30.5f, -9.0f, 6.0f)); // posÌcion inicial en la entrada
+		womanBase = glm::translate(womanBase, womanPos + glm::vec3(-30.5f, -9.0f, 6.0f)); // pos√≠cion inicial en la entrada
 		womanBase = glm::rotate(womanBase, glm::radians(womanRot + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // gira a su izquierda, para ver al frente
 		womanBase = glm::scale(womanBase, glm::vec3(8.0f, 8.0f, 8.0f));
 		modelTemp = model = womanBase;
@@ -722,7 +733,7 @@ int main()
 		// --- DIBUJO DE HOMBRE ESTUDIANTE ---
 		// Cuerpo
 		glm::mat4 manBase = glm::mat4(1.0f);
-		manBase = glm::translate(manBase, manPos + glm::vec3(40.0f, -9.0f, 59.0f)); // posÌcion inicial en el pasillo
+		manBase = glm::translate(manBase, manPos + glm::vec3(40.0f, -9.0f, 59.0f)); // pos√≠cion inicial en el pasillo
 		manBase = glm::rotate(manBase, glm::radians(manRot - 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // gira a su izquierda, para ver al frente
 		manBase = glm::scale(manBase, glm::vec3(7.0f, 7.0f, 7.0f));
 		modelTemp = model = manBase;
@@ -850,10 +861,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 		}
 	}
 
-	// --- CONTROLES DE ANIMACI”N Y ESTADOS (Solo se ejecutan una vez al presionar) ---
+	// --- CONTROLES DE ANIMACI√ìN Y ESTADOS (Solo se ejecutan una vez al presionar) ---
 
 	if (action == GLFW_PRESS) {
-		// 1. Activar animaciÛn de mesas (Teclado M)
+		// 1. Activar animaci√≥n de mesas (Teclado M)
 		if (key == GLFW_KEY_M) {
 			animarMesas = !animarMesas;
 		}
@@ -865,7 +876,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 			else Light1 = glm::vec3(0);
 		}
 
-		// 3. Reproducir/Pausar PÈndulo (Teclado L)
+		// 3. Reproducir/Pausar P√©ndulo (Teclado L)
 		if (key == GLFW_KEY_L) {
 			if (play == false && (FrameIndex > 1)) {
 				resetElements();
@@ -896,22 +907,22 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 void Animation() {
 	if (play)
 	{
-		if (i_curr_steps >= i_max_steps) // øTerminamos la transiciÛn entre cuadros?
+		if (i_curr_steps >= i_max_steps) // ¬øTerminamos la transici√≥n entre cuadros?
 		{
 			playIndex++;
-			if (playIndex > FrameIndex - 2)	// øTerminÛ toda la coreografÌa?
+			if (playIndex > FrameIndex - 2)	// ¬øTermin√≥ toda la coreograf√≠a?
 			{
 				printf("SISTEMA: Animacion finalizada\n");
 				playIndex = 0;
 				play = false;
 			}
-			else // ConfiguraciÛn para el siguiente tramo de la animaciÛn
+			else // Configuraci√≥n para el siguiente tramo de la animaci√≥n
 			{
 				i_curr_steps = 0; // Reiniciamos el contador de pasos
 				interpolation();  // Calculamos los nuevos incrementos para las esferas
 			}
 		}
-		else // Bloque de REPRODUCCI”N (aquÌ es donde se suma paso a paso)
+		else // Bloque de REPRODUCCI√ìN (aqu√≠ es donde se suma paso a paso)
 		{
 			// Aplicamos los incrementos a las 5 esferas
 			rotEsfera1 += KeyFrame[playIndex].rotEsfera1Inc;
@@ -926,7 +937,7 @@ void Animation() {
 	}
 
 	if (animarMesas) {
-		// Si la animaciÛn est· activa, crecen hasta llegar a 1.0f (escala 100%)
+		// Si la animaci√≥n est√° activa, crecen hasta llegar a 1.0f (escala 100%)
 		if (escalaNuevas < 1.0f) {
 			escalaNuevas += 0.0005f; // Velocidad con la que "aparecen"
 		}
@@ -959,7 +970,7 @@ void Animation() {
 			tangent = glm::normalize(tangent);
 			womanRot = glm::degrees(atan2(tangent.x, tangent.z))-90.0f;
 		}
-		// AnimaciÛn de piernas/brazos al caminar (maquina de estados)
+		// Animaci√≥n de piernas/brazos al caminar (maquina de estados)
 		if (!step) {
 			RightLeg += 0.2f;
 			LeftLeg -= 0.2f;
@@ -994,7 +1005,7 @@ void Animation() {
 			manTangent = glm::normalize(manTangent);
 			manRot = glm::degrees(atan2(manTangent.x, manTangent.z)) - 180.0f;
 		}
-		// AnimaciÛn de piernas/brazos al caminar (maquina de estados)
+		// Animaci√≥n de piernas/brazos al caminar (maquina de estados)
 		if (!manStep) {
 			manRightLeg += 0.2f;
 			manLeftLeg -= 0.2f;
