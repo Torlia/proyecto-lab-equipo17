@@ -1,4 +1,5 @@
-//Proyecto
+//Proyecto Final - Simulación del Pasillo de Exámenes Profesionales
+//Equipo 17
 #include <iostream>
 #include <cmath>
 
@@ -104,12 +105,13 @@ float vertices[] = {
 
 
 glm::vec3 Light1 = glm::vec3(0);
-//Anim
+//Animaciones
 
 // --- Variables de Animación de Mesas ---
-bool animarMesas = false;
 // Empezamos con una escala casi de cero (usar 0 exacto a veces rompe la iluminación)
 float escalaNuevas = 0.001f;
+float escalaMamparas = 0.001f;
+int estadoMesas = 0; // donnde 0 es una mesa/silla, 1 es tres mesas/sillas, 2 es todo
 
 float rotEsfera1 = 0;
 float rotEsfera1Inc = 0;
@@ -570,59 +572,71 @@ int main()
 
 		// --- MESAS Y SILLAS SECUNDARIAS (Las que crecen) ---
 
-		// --- MESA CENTRAL (Siempre visible en su tamaño original) ---
+		// Mesa Izquierda
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-25.0f, -9.5f, 80.0f)); // Posición central
+		model = glm::translate(model, glm::vec3(-5.0f, -9.5f, 80.0f)); // Desplazada a la izquierda
+		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));          // <-- APLICAMOS LA MAGIA DE LA ESCALA
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Mesa.Draw(lightingShader);
+
+		// Mesa Central
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(-20.0f, -9.5f, 80.0f));
 		model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
 
-		// Mesa Izquierdq
-		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-40.0f, -9.5f, 80.0f)); // Desplazada a la izquierda
-		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));          // <-- APLICAMOS LA MAGIA DE LA ESCALA
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		Mesa.Draw(lightingShader);
-		//Mampara 1
-		float factorMampara = 0.75f;
-		model = glm::translate(model, glm::vec3(14.0f, -9.5f, 82.0f));
-		model = glm::scale(model, glm::vec3(factorMampara));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		Mampara.Draw(lightingShader);
-
 		// Mesa Derecha
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-10.0f, -9.5f, 82.0f)); // Desplazada a la derecha
+		model = glm::translate(model, glm::vec3(-36.0f, -9.5f, 80.0f)); // Desplazada a la derecha
 		model = glm::scale(model, glm::vec3(escalaNuevas * 8.0f));         // <-- ESCALA
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Mesa.Draw(lightingShader);
-		//Mampara 2
-		model = glm::translate(model, glm::vec3(14.0f, -9.5.0f, -4.6f));
-		model = glm::scale(model, glm::vec3(factorMampara));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		Mampara.Draw(lightingShader);
 
 		// Silla Izquierda
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-15.0f, -9.5f, 45.0f)); // Cerca de la mesa izquierda
+		model = glm::translate(model, glm::vec3(-10.0f, -9.5f, 45.0f)); // Cerca de la mesa izquierda
 		model = glm::scale(model, glm::vec3(escalaNuevas * 0.6f));          // Crecen juntas
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Silla.Draw(lightingShader);
 
 		// Silla Centro
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(0.0f, -9.5f, 45.0f)); // Cerca de la mesa izquierda
-		model = glm::scale(model, glm::vec3(escalaNuevas * 0.6f));          // Crecen juntas
+		model = glm::translate(model, glm::vec3(5.0f, -9.5f, 45.0f)); // Cerca de la mesa izquierda
+		model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));          // Crecen juntas
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Silla.Draw(lightingShader);
-
 
 		// Silla Derecha
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(15.0f, -9.5f, 45.0f)); // Cerca de la mesa derecha
+		model = glm::translate(model, glm::vec3(20.0f, -9.5f, 45.0f)); // Cerca de la mesa derecha
 		model = glm::scale(model, glm::vec3(escalaNuevas * 0.6f));         // Crecen juntas
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Silla.Draw(lightingShader);
+		
+		//Mampara Izquierda
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(-17.0f, -9.0f, 55.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(escalaMamparas * 5.5f, escalaMamparas * 8.0f, escalaMamparas * 3.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Mampara.Draw(lightingShader);
+
+		//Mampara Centro
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(0.0f, -9.0f, 55.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(escalaMamparas * 5.5f, escalaMamparas * 8.0f, escalaMamparas * 3.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Mampara.Draw(lightingShader);
+
+		//Mampara Derecha
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(17.0f, -9.0f, 55.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(escalaMamparas * 5.5f, escalaMamparas * 8.0f, escalaMamparas * 3.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Mampara.Draw(lightingShader);
 
 		// --- DIBUJO DEL PÉNDULO DE NEWTON ---
 
@@ -765,7 +779,7 @@ int main()
 
 		// Pierna derecha
 		model = modelTemp;
-		model = glm::translate(model, glm::vec3(0.25f, 0.8f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.2f, 0.8f, 0.0f));
 		model = glm::rotate(model, glm::radians(manRightLeg), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -773,7 +787,7 @@ int main()
 
 		// Pierna izquierda
 		model = modelTemp;
-		model = glm::translate(model, glm::vec3(-0.25f, 0.8f, 0.0f));
+		model = glm::translate(model, glm::vec3(-0.2f, 0.8f, 0.0f));
 		model = glm::rotate(model, glm::radians(manLeftLeg), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::translate(model, glm::vec3(0.0f, -0.8f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -867,7 +881,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 	if (action == GLFW_PRESS) {
 		// 1. Activar animación de mesas (Teclado M)
 		if (key == GLFW_KEY_M) {
-			animarMesas = !animarMesas;
+			estadoMesas++;
+			if (estadoMesas > 2) {
+				estadoMesas = 0;
+			}
 		}
 
 		// 2. Encender/Apagar Luz (Barra espaciadora)
@@ -891,7 +908,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 			}
 		}
 
-		// 4. Activar animacion de personas
+		// 4. Activar animacion de personas (Teclado N)
 		if (key == GLFW_KEY_N) {
 			animarEstudiantes = !animarEstudiantes;
 			if (animarEstudiantes) {
@@ -906,6 +923,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 
 void Animation() {
+	// Animacion keyframes
 	if (play)
 	{
 		if (i_curr_steps >= i_max_steps) // ¿Terminamos la transición entre cuadros?
@@ -937,25 +955,54 @@ void Animation() {
 		}
 	}
 
-	if (animarMesas) {
-		// Si la animación está activa, crecen hasta llegar a 1.0f (escala 100%)
-		if (escalaNuevas < 1.0f) {
-			escalaNuevas += 0.0005f; // Velocidad con la que "aparecen"
-		}
-		else {
-			escalaNuevas = 1.0f; // Tope para que no crezcan al infinito
-		}
-	}
-	else {
-		// Opcional: Si vuelves a presionar 'M', se hacen chiquitas de nuevo
+	// Animacion mobiliario
+	// Solo una mesa/silla
+	if (estadoMesas == 0) {
 		if (escalaNuevas > 0.001f) {
-			escalaNuevas -= 0.0005f;
+			escalaNuevas -= 0.002f;
 		}
 		else {
 			escalaNuevas = 0.001f;
 		}
+		if (escalaMamparas > 0.001f) {
+			escalaMamparas -= 0.002f;
+		}
+		else {
+			escalaMamparas = 0.001f;
+		}
+	}
+	// Tres mesas/sillas 
+	else if (estadoMesas == 1) {
+		if (escalaNuevas < 1.0f) {
+			escalaNuevas += 0.002f;
+		}
+		else {
+			escalaNuevas = 1.0f;
+		}
+		if (escalaMamparas > 0.001f) {
+			escalaMamparas -= 0.002f;
+		}
+		else {
+			escalaMamparas = 0.001f;
+		}
+	}
+	// Tres mesas/sillas/mamparas
+	else if (estadoMesas == 2) {
+		if (escalaNuevas < 1.0f) {
+			escalaNuevas += 0.002f;
+		}
+		else {
+			escalaNuevas = 1.0f;
+		}
+		if (escalaMamparas < 1.0f) {
+			escalaMamparas += 0.002f;
+		}
+		else {
+			escalaMamparas = 1.0f;
+		}
 	}
 
+	// Animacion curvas de bezier
 	if (animarEstudiantes) {
 		womanTrayectoria += womanSpeed * deltaTime;
 		if (womanTrayectoria >= 1.0f) {
